@@ -53,18 +53,18 @@ try:
         success, frame = cap.read()
         if not success: break
 
-        # 2. Shared Pre-processing
+        # Shared Pre-Processing
         # Convert once for all trackers to save processing time
         rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb_frame)
         timestamp_ms = int(time.time() * 1000)
 
-        # 3. Dispatch to Trackers
+        # Dispatch to Trackers
         # These run asynchronously!
         pose_tracker.process_frame(mp_image, timestamp_ms)
         face_tracker.process_frame(mp_image, timestamp_ms) 
 
-        # 4. Retrieve & Visualize Results
+        # Retrieve & Visualize Results
         # Check Face Results
         face_result = face_tracker.get_latest_result()
         pose_result = pose_tracker.get_latest_result()
@@ -84,5 +84,6 @@ try:
 finally:
     # 5. Clean up
     pose_tracker.close()
+    face_tracker.close()
     cap.release()
     cv2.destroyAllWindows()
