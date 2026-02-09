@@ -31,6 +31,19 @@ class PoseDetector:
         # Conver to MediaPipe Image
         mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=frame)
         return self.detector.detect_async(mp_image, int(time.time()*1000))
+
+    def process_frame(self, mp_image, timestamp_ms):
+        """
+        Sends the frame to MediaPipe for processing. 
+        This is non-blocking (async).
+        """
+        self.detector.detect_async(mp_image, timestamp_ms)
+
+    def get_latest_result(self):
+        """
+        Returns the most recent result received by the callback.
+        """
+        return self.latest_result
     
     def close(self):
         self.detector.close()
