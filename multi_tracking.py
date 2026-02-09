@@ -1,9 +1,8 @@
 import cv2
-import time, math
+import time
 import mediapipe as mp
 from pose_tracker import PoseTracker
 from face_tracker import FaceTracker
-from typing import Union, Tuple
 
 POSE_CONNECTIONS = [
     (11, 12), (11, 13), (13, 15), (12, 14), (14, 16),  # Arms
@@ -47,48 +46,52 @@ def draw_faces(face_result, frame):
             cx, cy = int(keypoint.x * w) , int(keypoint.y *h)
             cv2.circle(frame, (cx, cy), 5, (0, 0, 255), -1)
 
-# 1. Instantiate your tracker classes
-pose_tracker = PoseTracker(model_path='models/pose_landmarker_lite.task', num_poses= 10)
-face_tracker = FaceTracker(model_path='models/detector.tflite')
+def main():
+    # 1. Instantiate your tracker classes
+    pose_tracker = PoseTracker(model_path='models/pose_landmarker_lite.task', num_poses= 10)
+    face_tracker = FaceTracker(model_path='models/detector.tflite')
 
-cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(0)
 
-try:
-    while cap.isOpened():
-        success, frame = cap.read()
-        if not success: break
+    try:
+        while cap.isOpened():
+            success, frame = cap.read()
+            if not success: break
 
-        # Shared Pre-Processing
-        # Convert once for all trackers to save processing time
-        rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb_frame)
-        timestamp_ms = int(time.time() * 1000)
+            # Shared Pre-Processing
+            # Convert once for all trackers to save processing time
+            rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb_frame)
+            timestamp_ms = int(time.time() * 1000)
 
-        # Dispatch to Trackers
-        # These run asynchronously!
-        pose_tracker.process_frame(mp_image, timestamp_ms)
-        face_tracker.process_frame(mp_image, timestamp_ms) 
+            # Dispatch to Trackers
+            # These run asynchronously!
+            pose_tracker.process_frame(mp_image, timestamp_ms)
+            face_tracker.process_frame(mp_image, timestamp_ms) 
 
-        # Retrieve & Visualize Results
-        # Check Face Results
-        face_result = face_tracker.get_latest_result()
-        pose_result = pose_tracker.get_latest_result()
-
-
-        if pose_result and pose_result.pose_landmarks:
-            draw_poses(pose_result, frame)
-        
-        if face_result and face_result.detections:
-            draw_faces(face_result, frame)
+            # Retrieve & Visualize Results
+            # Check Face Results
+            face_result = face_tracker.get_latest_result()
+            pose_result = pose_tracker.get_latest_result()
 
 
-        cv2.imshow('Multi-Tracker MERGE', frame)
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
+            if pose_result and pose_result.pose_landmarks:
+                draw_poses(pose_result, frame)
+            
+            if face_result and face_result.detections:
+                draw_faces(face_result, frame)
 
-finally:
-    # 5. Clean up
-    pose_tracker.close()
-    face_tracker.close()
-    cap.release()
-    cv2.destroyAllWindows()
+
+            cv2.imshow('Multi-Tracker MERGE', frame)
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
+
+    finally:
+        # 5. Clean up
+        pose_tracker.close()
+        face_tracker.close()
+        cap.release()
+        cv2.destroyAllWindows()
+
+if __name__ == '__main__':
+    main()
