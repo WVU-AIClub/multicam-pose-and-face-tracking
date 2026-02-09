@@ -1,5 +1,9 @@
 import mediapipe as mp
+from mediapipe.tasks import python
+from mediapipe.tasks.python import vision
+
 import cv2
+import time
 import numpy as np
 from typing import Optional, List, Union
 
@@ -18,13 +22,12 @@ class CameraStream:
     def release(self):
         self.cap.release()
 
-
 class FaceDetector:
-    def __init__(self, model_selection:int=1, min_confidence:int=0.6):
-        self.mp_face_detection = mp.solutions.face_detection
+    def __init__(self, model_selection:int=1, min_confidence:float=0.6):
+        self.mp_face_detection = mp.tasks.vision.FaceDetector
 
         # Model selection 0 = Short Range (WebCam), 1 = Long Range (IP Cam)
-        self.detector = mp.face_detection.FaceDetection(
+        self.detector = mp.tasks.vision.FaceDetectorOptions(
             model_selection = model_selection, min_detection_confidence = min_confidence
         )
     def detect(self, frame):
@@ -46,14 +49,22 @@ class FaceDetector:
         self.detector.close()
 
 
+
 def main():
     cam = CameraStream(source=0)
-    face_scan = FaceDetector(model_selection=0)
+    pose_scan = PoseDetector(model_path='pose_landmarker_lite.task')
     print("Running... Press 'q' to quit.")
     try:
         while True:
             frame = cam.read()
-            print(face_scan.detect(frame))
+            if frame is not None: 
+                break
+
+            if pose_scan.latest_result and pose_scan.latest_result.pose_landmarks:
+                nose_x = pose_scan.latest_result.pose_landmarks[0][0].x
+                print(f"Nose X: {nose_x:.4f}")
+            
+            cv2.imshow('Feed', frame)
 
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
@@ -62,7 +73,7 @@ def main():
         print("\nStopped by user.")
     finally:
         cam.release()
-        face_scan.close()
+        pose_scan.close()
         cv2.destroyAllWindows()
 
 
