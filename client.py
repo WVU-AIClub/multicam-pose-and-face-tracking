@@ -6,10 +6,10 @@ import imagezmq
 
 # Enter the IP address of the host laptop
 # The host can find their IP by running `ipconfig` (Windows) or `ifconfig` (Mac/Linux)
-host_ip = ""
+host_ip = "192.168.137.1"
 
 # connect_to specifies the IP address of your main laptop (the host)
-sender = imagezmq.ImageSender(connect_to='tcp://{host_ip}}:5555') 
+sender = imagezmq.ImageSender(connect_to=f'tcp://{host_ip}:5555') 
 
 # Give this device a unique name
 rpi_name = socket.gethostname()
