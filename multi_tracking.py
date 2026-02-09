@@ -1,8 +1,9 @@
 import cv2
-import time
+import time, math
 import mediapipe as mp
 from pose_tracker import PoseTracker
 from face_tracker import FaceTracker
+from typing import Union, Tuple
 
 POSE_CONNECTIONS = [
     (11, 12), (11, 13), (13, 15), (12, 14), (14, 16),  # Arms
@@ -11,7 +12,7 @@ POSE_CONNECTIONS = [
     (27, 29), (28, 30), (29, 31), (30, 32)             # Feet
 ]
 
-def draw_poses(pose_result):
+def draw_poses(pose_result, frame):
     for landmarks in pose_result.pose_landmarks: # NOTE: Ignore this fake error, it thinks face_result is always None
         for landmark in landmarks:
             h, w, _ = frame.shape
@@ -31,20 +32,24 @@ def draw_poses(pose_result):
                 cx, cy = int(landmark.x * w) , int(landmark.y *h)
                 cv2.circle(frame, (cx, cy), 5, (0, 0, 255), -1)
 
-def draw_faces(face_result):
-    if face_result and face_result.detections:
-        for detection in face_result.detections: # NOTE: Ignore this fake error, it thinks face_result is always None
-            bbox = detection.bounding_box
-            cv2.rectangle(frame, 
-                            (bbox.origin_x, bbox.origin_y), 
-                            (bbox.origin_x + bbox.width, bbox.origin_y + bbox.height), 
-                            (0, 255, 0), 2)
-            cv2.putText(frame, "Face", (bbox.origin_x, bbox.origin_y - 10),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+def draw_faces(face_result, frame):
+    for detection in face_result.detections: # NOTE: Ignore this fake error, it thinks face_result is always None
+        bbox = detection.bounding_box
+        cv2.rectangle(frame, 
+                        (bbox.origin_x, bbox.origin_y), 
+                        (bbox.origin_x + bbox.width, bbox.origin_y + bbox.height), 
+                        (0, 255, 0), 2)
+        cv2.putText(frame, "Face", (bbox.origin_x, bbox.origin_y - 10),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+        
+        for keypoint in detection.keypoints:
+            h, w, _ = frame.shape
+            cx, cy = int(keypoint.x * w) , int(keypoint.y *h)
+            cv2.circle(frame, (cx, cy), 5, (0, 0, 255), -1)
 
 # 1. Instantiate your tracker classes
 pose_tracker = PoseTracker(model_path='models/pose_landmarker_lite.task', num_poses= 10)
-face_tracker = FaceTracker(model_path='models/detector.tflite') # Your future Pose class
+face_tracker = FaceTracker(model_path='models/detector.tflite')
 
 cap = cv2.VideoCapture(0)
 
@@ -71,10 +76,10 @@ try:
 
 
         if pose_result and pose_result.pose_landmarks:
-            draw_poses(pose_result)
+            draw_poses(pose_result, frame)
         
         if face_result and face_result.detections:
-            draw_faces(face_result)
+            draw_faces(face_result, frame)
 
 
         cv2.imshow('Multi-Tracker MERGE', frame)
