@@ -5,7 +5,7 @@ import imagezmq
 import time
 import mediapipe as mp
 from face_tracker import FaceTracker
-from pose_tracker import PoseDetector
+from pose_tracker import PoseTracker
 
 # Initialize the Hub (host)
 image_hub = imagezmq.ImageHub()
@@ -26,7 +26,7 @@ try:
             print(f"[INFO] New camera detected: {cam_name}")
             device_trackers[cam_name] = {
                 'face': FaceTracker(model_path='models/detector.tflite'),
-                'pose': PoseDetector(model_path='models/pose_landmarker_lite.task')
+                'pose': PoseTracker(model_path='models/pose_landmarker_lite.task')
             }
             
         # 5. Get the specific toolkit for this camera
