@@ -49,16 +49,15 @@ def main():
             label = "Searching..."
             color = (255, 0, 0)
             if face_result and face_result.detections is not []:
-                face_objs = DeepFace.represent(img_path=frame, enforce_detection=False)
+                face_objs = DeepFace.find(img_path=frame, db_path=DB_PATH, enforce_detection=False, silent=True)
                 print(face_objs)
 
-
-                if len(face_objs) > 0:
+                if not face_objs[0].empty:
                     label = face_objs[0]['identity'][0].split('/')[-1].split('.')[0]
                     color = (0, 255, 0)
                 else:
-                    label = "New Face Detected"
-                    DeepFace.register(img=frame)
+                    label = "No Face Detected"
+                    color = (200, 0, 50)
 
             cv2.putText(frame, f"Identity: {label}", (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
 
