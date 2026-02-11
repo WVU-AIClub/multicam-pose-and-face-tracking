@@ -114,6 +114,10 @@ try:
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
+except KeyboardInterrupt:
+    print("Quitting Program")
+
+
 finally:
     # Clean up all trackers for all devices
     for toolkit in device_trackers.values():
