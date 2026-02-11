@@ -7,4 +7,5 @@ requires-python = ">=3.11"
 dependencies = [
     "imagezmq>=1.2.0",
     "mediapipe>=0.10.32",
+    "pyinstaller>=6.18.0",
 ]
