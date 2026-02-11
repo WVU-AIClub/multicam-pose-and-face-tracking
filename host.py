@@ -103,10 +103,7 @@ try:
         dashboard = create_image_grid(current_images, tile_size=(400,300))
 
         # 8. Show the window
-        # Note: 'cv2.imshow' creates a window named after the camera
-        # If you have 3 cameras, you will get 3 pop-up windows!
         cv2.imshow("Multi-Camera Dashboard", dashboard)
-        # cv2.imshow(f"Stream: {cam_name}", frame)
         
         # 9. Send Reply (Required)
         image_hub.send_reply(b'OK')

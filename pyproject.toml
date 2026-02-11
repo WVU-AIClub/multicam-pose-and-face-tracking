@@ -5,7 +5,10 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
+    "deepface>=0.0.98",
     "imagezmq>=1.2.0",
     "mediapipe>=0.10.32",
+    "psycopg[binary]>=3.3.2",
     "pyinstaller>=6.18.0",
+    "tf-keras>=2.20.1",
 ]

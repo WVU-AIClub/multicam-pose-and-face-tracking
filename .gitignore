@@ -9,3 +9,5 @@ wheels/
 # Virtual environments
 .venv
 client.spec
+
+biometric_db
