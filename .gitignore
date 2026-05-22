@@ -11,3 +11,4 @@ wheels/
 client.spec
 
 biometric_db
+.env
